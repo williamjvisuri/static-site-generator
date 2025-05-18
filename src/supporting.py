@@ -109,26 +109,26 @@ def text_to_textnodes(text):
     return link_split
 
 
-def copy_to_public(path_extension=""):
-    public_path = "/home/williamjv/repo/static-site-generator/public/" + path_extension
+def copy_to_docs(path_extension=""):
+    docs_path = "/home/williamjv/repo/static-site-generator/docs/" + path_extension
     static_path = "/home/williamjv/repo/static-site-generator/static/" + path_extension
     if path_extension == "":
-        if os.path.exists(public_path):
-            shutil.rmtree(public_path)
-        os.mkdir(public_path)
+        if os.path.exists(docs_path):
+            shutil.rmtree(docs_path)
+        os.mkdir(docs_path)
         if not os.path.exists(static_path):
             raise Exception(f"{static_path} does not exist")
     stuff_in_static = os.listdir(static_path)
     for entry in stuff_in_static:
         absolute_static_path = static_path + entry
-        absolute_public_path = public_path + entry
+        absolute_docs_path = docs_path + entry
         if os.path.isfile(absolute_static_path):
-            shutil.copy(absolute_static_path, absolute_public_path)
-            print("copied", absolute_static_path, "to", absolute_public_path)
+            shutil.copy(absolute_static_path, absolute_docs_path)
+            print("copied", absolute_static_path, "to", absolute_docs_path)
         else:
-            os.mkdir(absolute_public_path)
-            print(f"created directory {absolute_public_path}")
-            copy_to_public(path_extension + f"{entry}/")
+            os.mkdir(absolute_docs_path)
+            print(f"created directory {absolute_docs_path}")
+            copy_to_docs(path_extension + f"{entry}/")
 
 
 def extract_title(markdown):
@@ -230,19 +230,19 @@ def markdown_to_html_node(markdown):
     return parent_node
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     entries = os.listdir(dir_path_content)
     for entry in entries:
         entry_path = f"{dir_path_content}/{entry}"
         if os.path.isfile(entry_path):
             file_name = f"{dest_dir_path}/{entry.replace(".md", ".html")}"
-            generate_page(entry_path, template_path, file_name)
+            generate_page(entry_path, template_path, file_name, basepath)
         else:
             generate_pages_recursive(entry_path, template_path, f"{
-                                     dest_dir_path}/{entry}")
+                                     dest_dir_path}/{entry}", basepath)
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {
           dest_path} using {template_path}")
     with open(from_path) as f:
@@ -253,7 +253,7 @@ def generate_page(from_path, template_path, dest_path):
     html_string = html_node.to_html()
     title = extract_title(from_contents)
     updated_template_contents = template_contents.replace(
-        "{{ Title }}", title).replace("{{ Content }}", html_string)
+        "{{ Title }}", title).replace("{{ Content }}", html_string).replace("href=\"/", f"href=\"{basepath}").replace("src=\"/", f"src=\"{basepath}")
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     with open(dest_path, "w") as f:
         f.write(updated_template_contents)
