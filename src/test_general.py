@@ -43,7 +43,7 @@ class TestHTMLNodeRepr(unittest.TestCase):
 
 class TestLeafNodeErrors(unittest.TestCase):
     def test_missing_value_raises(self):
-        node = LeafNode("p", "")
+        node = LeafNode("p", None)
         with self.assertRaises(ValueError):
             node.to_html()
 

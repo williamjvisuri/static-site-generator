@@ -6,8 +6,9 @@ from supporting import (
     text_to_textnodes,
     extract_markdown_links,
     extract_markdown_images,
+    markdown_to_html_node,
 )
-from blocks import markdown_to_blocks, markdown_to_html_node
+from blocks import markdown_to_blocks
 from htmlnode import LeafNode, HTMLNode, ParentNode
 
 from textnode import TextNode, TextType, text_node_to_html_node
